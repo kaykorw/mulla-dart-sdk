@@ -5,7 +5,6 @@ import 'package:mulla_dart/mulla_dart.dart';
 import 'package:mulla_dart/testing.dart';
 import 'package:test/test.dart';
 
-/// Shared conformance vector, generated with Node crypto exactly like the Mulla server (same file in every SDK).
 final Map<String, Object?> v =
     jsonDecode(File('test/fixtures/webhooks/charge_success.json').readAsStringSync()) as Map<String, Object?>;
 final String body = v['body']! as String;

@@ -4,7 +4,6 @@ import 'package:mulla_dart/testing.dart';
 const testKey = 'sk_test_abc123_secretvalue';
 const liveKey = 'sk_live_abc123_secretvalue';
 
-/// Sleeps recorded instead of waited.
 final List<Duration> sleeps = [];
 
 Future<void> noSleep(Duration d) async => sleeps.add(d);

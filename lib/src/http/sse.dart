@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-/// One server-sent event.
 class SseEvent {
   const SseEvent({this.event = 'message', required this.data, this.id});
 
@@ -14,9 +13,6 @@ class SseEvent {
 }
 
 /// Parses a `text/event-stream` body (https://html.spec.whatwg.org/#event-stream-interpretation).
-///
-/// Built from transformers (not `async*`) so cancelling the result cancels the
-/// underlying connection right away instead of at the next event.
 Stream<SseEvent> parseSse(Stream<List<int>> bytes) =>
     bytes.transform(utf8.decoder).transform(const LineSplitter()).transform(_SseDecoder());
 

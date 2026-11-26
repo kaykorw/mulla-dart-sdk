@@ -5,14 +5,11 @@ typedef Metadata = Map<String, Object?>;
 
 final RegExp _separators = RegExp(r'[\s().-]');
 
-/// Converts Rwandan numbers to international format: `0788 000 000`, `250788000000`,
-/// `788000000` and the common slip `+250 0788 000 000` all become `+250788000000`.
-/// Other numbers are returned trimmed, without separators after a leading `+`.
+/// Converts a Rwandan number to `+2507XXXXXXXX`, fixing common typing slips.
 String normalizePhoneNumber(String value) {
   final trimmed = value.trim();
   final plus = trimmed.startsWith('+');
   final digits = (plus ? trimmed.substring(1) : trimmed).replaceAll(_separators, '');
-  // Rwandan mobile numbers are +250 7XXXXXXXX; a 0 typed after the country code is a local-format slip.
   final rwanda = RegExp(r'^(?:250)?0?(7\d{8})$').firstMatch(digits);
   if (rwanda != null && (!plus || digits.startsWith('250'))) return '+250${rwanda[1]}';
 
@@ -45,7 +42,7 @@ void _amount(num amount) {
   }
 }
 
-/// Builder-style params: every class turns into the API's snake_case body with [toApi].
+/// Request parameters; [toApi] builds the API's snake_case body.
 abstract class Params {
   const Params();
 
@@ -69,7 +66,7 @@ class InitiateChargeParams extends Params {
 
   final Provider provider;
 
-  /// Amount in RWF (whole francs, not cents). Minimum 10.
+  /// Amount in RWF (whole francs, not cents).
   final num amount;
   final String phoneNumber;
   final Currency? currency;
@@ -80,7 +77,6 @@ class InitiateChargeParams extends Params {
   final Map<String, Object?>? shippingDetails;
   final Metadata? metadata;
 
-  /// Customer id.
   final String? customer;
 
   @override
@@ -298,7 +294,6 @@ class CreateInvoiceParams extends Params {
     this.metadata,
   });
 
-  /// Customer id.
   final String customer;
   final List<InvoiceItemParams> items;
   final String? invoiceNumber;

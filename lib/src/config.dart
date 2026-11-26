@@ -43,9 +43,6 @@ class AppInfo {
 }
 
 /// Validated settings shared by [MullaClient] and [MullaPublicClient].
-///
-/// The SDK never reads environment variables or `.env` files: pass every value explicitly.
-/// Null and blank strings count as "not set", so values read from an unset variable fall back to defaults.
 class MullaConfig {
   MullaConfig._({
     required String? apiKey,
@@ -65,7 +62,7 @@ class MullaConfig {
   })  : _apiKey = apiKey,
         _webhookSecret = webhookSecret;
 
-  /// Settings for a secret-key client. The key prefix decides the environment.
+  /// Settings for a secret-key client.
   factory MullaConfig({
     required String? apiKey,
     Environment? environment,
@@ -241,7 +238,6 @@ class MullaConfig {
   /// True for a [MullaConfig.public] config (no secret key).
   bool get isPublic => _apiKey == null;
 
-  /// The secret key. Throws for a public config.
   String apiKey() {
     final key = _apiKey;
     if (key == null) {

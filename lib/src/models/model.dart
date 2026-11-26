@@ -4,10 +4,6 @@ import '../errors.dart';
 
 typedef RawData = Map<String, Object?>;
 
-/// Base for every API object. Typed camelCase properties for autocompletion, plus:
-///  - [raw]          the untouched API data (new fields appear here first)
-///  - [get]          read any raw field
-///  - [toJson]       the raw data, for `jsonEncode`
 abstract class Model {
   Model(RawData data) : raw = UnmodifiableMapView(Map.of(data));
 
@@ -28,7 +24,6 @@ class MullaObject extends Model {
 
 typedef ModelFactory<T extends Model> = T Function(RawData data);
 
-/// Factory: hydrates a model from a decoded response.
 T makeModel<T extends Model>(ModelFactory<T> factory, Object? data, String name) {
   if (data is! Map) {
     throw MullaException('Mulla returned an empty or unexpected response where a $name was expected.');

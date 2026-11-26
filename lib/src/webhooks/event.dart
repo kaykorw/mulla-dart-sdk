@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import '../enums.dart';
 
-/// A verified webhook event.
 class Event {
   Event({required this.id, required this.type, Map<String, Object?> data = const {}})
       : data = UnmodifiableMapView(Map.of(data)),
@@ -32,7 +31,7 @@ class Event {
   bool get isPayout => type.startsWith('payout.');
   bool get isInvoice => type.startsWith('invoice.');
 
-  /// The charge, payout or invoice id. Use it to find your own record.
+  /// The charge, payout or invoice id.
   String? objectId() {
     for (final key in const ['charge', 'payout', 'invoice']) {
       final value = data[key];

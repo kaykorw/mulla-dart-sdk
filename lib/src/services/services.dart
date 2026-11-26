@@ -19,12 +19,10 @@ class ChargeService extends AbstractService {
   @override
   ApiScope get scope => ApiScope.charges;
 
-  /// Sends a payment prompt to the customer's phone. The charge starts as `PENDING`.
+  /// Sends a payment prompt to the customer's phone.
   Future<Charge> initiate(InitiateChargeParams params, [RequestOptions? options]) async =>
       send(Charge.new, 'Charge', 'POST', 'charges/initiate', body: params.toApi(), options: options);
 
-  /// Creates a hosted checkout session. Send the customer to `session.checkoutUrl`,
-  /// or hand `session.id` and `session.token` to your app (mulla_flutter).
   Future<CheckoutSession> createCheckout(CreateCheckoutParams params, [RequestOptions? options]) async =>
       send(CheckoutSession.new, 'CheckoutSession', 'POST', 'charges/checkout', body: params.toApi(), options: options);
 
@@ -63,8 +61,7 @@ class CheckoutService extends AbstractService {
   String eventsUrl(String id, String token) =>
       '${config.baseUrl}/checkout/${_Id.id(id, 'checkout id')}/events?token=${encodeRfc3986(_token(token))}';
 
-  /// Live status updates until the session is final. Uses server-sent events and falls back
-  /// to polling every [pollInterval] when streaming is unavailable (web) or drops.
+  /// Live status updates until the session is final.
   Stream<CheckoutUpdate> watch(
     String id,
     String token, {
@@ -143,8 +140,6 @@ class RechargeService extends AbstractService {
       pollUntilFinal(() => retrieve(id), (r) => r.isFinal, timeout: timeout, interval: interval);
 }
 
-/// Invoices. `retrievePublic`, `pay`, `eventsUrl` and `watch` use public endpoints and
-/// also work on [MullaPublicClient].
 class InvoiceService extends AbstractService {
   InvoiceService(super.requestor);
 
@@ -246,7 +241,6 @@ class WebhookEndpointService extends AbstractService {
   @override
   String get resource => 'webhookEndpoint';
 
-  /// Registers your webhook URL. Store the returned `endpoint.secret`: it is shown only once.
   Future<WebhookEndpoint> create(
       [CreateWebhookEndpointParams params = const CreateWebhookEndpointParams(), RequestOptions? options]) async {
     final url = params.url ?? config.webhookUrl;

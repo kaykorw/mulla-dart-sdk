@@ -9,13 +9,7 @@ import 'request_options.dart';
 import 'response.dart';
 import 'transport.dart';
 
-/// Builds requests, runs them through the middleware pipeline and turns error
-/// responses into exceptions. Shared by every service.
-///
-/// Pipeline order (outermost first):
-///   ClientContext -> Auth -> Idempotency -> Retry -> [your middleware] -> Logging -> transport
-///
-/// A public config skips Auth.
+/// Builds requests, runs them through the middleware pipeline and turns error responses into exceptions.
 class ApiRequestor {
   ApiRequestor(this.config)
       : _context = ClientContextMiddleware(config.deviceId, lang: config.lang?.value, appInfo: config.appInfo) {
@@ -33,7 +27,6 @@ class ApiRequestor {
   final ClientContextMiddleware _context;
   late final Pipeline _pipeline;
 
-  /// Sends a JSON request and returns the decoded body.
   Future<Object?> request(
     String method,
     String path, {
@@ -49,8 +42,6 @@ class ApiRequestor {
     return response.json();
   }
 
-  /// Opens a server-sent events stream. Only the client-context headers are added:
-  /// streams are long-lived, so they are not retried or logged per attempt.
   Future<StreamedResponse> openStream(String path, {Map<String, Object?> query = const {}}) async {
     final transport = config.transport;
     if (transport is! StreamingTransport) {
@@ -70,7 +61,6 @@ class ApiRequestor {
     return response;
   }
 
-  /// Full URL for [path] under the configured base URL.
   String url(String path, [Map<String, Object?> query = const {}]) =>
       '${config.baseUrl}/${path.replaceFirst(RegExp('^/+'), '')}${buildQuery(query)}';
 

@@ -106,16 +106,14 @@ Future<void> main() async {
   // The SDK never reads environment variables itself: pass the key in.
   final mulla = MullaClient(apiKey: Platform.environment['MULLA_SECRET_KEY']);
 
-  // 1. Send a payment request to the customer's phone.
   final charge = await mulla.charges.initiate(const InitiateChargeParams(
     provider: Provider.mtnRw,
     amount: 5000, // RWF
     phoneNumber: '0788000000',
     reason: 'Order #1001',
   ));
-  print('Charge ${charge.id} is ${charge.status}'); // PENDING
+  print('Charge ${charge.id} is ${charge.status}');
 
-  // 2. Wait while the customer approves on their phone.
   final result = await mulla.charges.waitForFinalStatus(charge.id);
   if (result.isSuccessful) {
     print('Paid!');
@@ -191,11 +189,10 @@ final charge = await mulla.charges.initiate(const InitiateChargeParams(
   provider: Provider.airtelRw,
   amount: 12000,
   phoneNumber: '0730000000',
-  reason: 'Order #1001', // shown to the customer
-  metadata: {'orderId': 1001}, // your own data, returned in webhooks
+  reason: 'Order #1001',
+  metadata: {'orderId': 1001},
 ));
 
-// Save charge.id with the order, so you can match the result later.
 await orders.update(1001, mullaChargeId: charge.id);
 ```
 
@@ -212,8 +209,8 @@ final session = await mulla.charges.createCheckout(const CreateCheckoutParams(
   amount: 25000,
   reason: 'Order #1001',
   metadata: {'orderId': 1001},
-  successUrl: 'https://shop.example/orders/1001/thanks', // where the customer goes after paying
-  cancelUrl: 'https://shop.example/cart', // where they go if they give up
+  successUrl: 'https://shop.example/orders/1001/thanks',
+  cancelUrl: 'https://shop.example/cart',
 ));
 ```
 
@@ -227,7 +224,7 @@ final mulla = MullaPublicClient(environment: Environment.test);
 await mulla.checkout.pay(sessionId, token, const PayParams(provider: Provider.mtnRw, phoneNumber: '0788000000'));
 
 await for (final update in mulla.checkout.watch(sessionId, token)) {
-  print(update.status); // PENDING, then SUCCESSFUL, FAILED or EXPIRED. Then the stream ends.
+  print(update.status);
 }
 ```
 
@@ -244,9 +241,9 @@ Webhooks are messages Mulla sends to your server when something happens: a payme
 ```dart
 final endpoint = await mulla.webhookEndpoint.create(
     const CreateWebhookEndpointParams(url: 'https://shop.example/mulla/webhook'));
-print(endpoint.secret); // store it now
+print(endpoint.secret);
 
-final check = await mulla.webhookEndpoint.test(); // Mulla sends a "webhook.test" event
+final check = await mulla.webhookEndpoint.test();
 print(check.ok ? 'Your server received it' : 'Mulla got HTTP ${check.statusCode}');
 ```
 
@@ -260,12 +257,12 @@ final process = WebhookProcessor(
   dispatcher: EventDispatcher()
     ..on(WebhookEventType.chargeSuccess, (event) => orders.markPaidByChargeId(event.objectId()!))
     ..on(WebhookEventType.chargeFailed, (event) => orders.markFailedByChargeId(event.objectId()!)),
-  isDuplicate: (event) => webhookEvents.exists(event.id), // Mulla may send an event more than once
+  isDuplicate: (event) => webhookEvents.exists(event.id),
 );
 
 // With shelf:
 Future<Response> webhook(Request request) async {
-  final body = await request.read().expand((chunk) => chunk).toList(); // the exact bytes received
+  final body = await request.read().expand((chunk) => chunk).toList();
   final result = await process(body, request.headers);
   return Response(result.status, body: result.jsonBody, headers: {'content-type': 'application/json'});
 }
@@ -287,11 +284,11 @@ Using another framework? Call `Webhook.constructEvent(rawBody, headers, secret)`
 **3. Manage the webhook later:**
 
 ```dart
-await mulla.webhookEndpoint.retrieve(); // the current URL and whether it's active
+await mulla.webhookEndpoint.retrieve();
 await mulla.webhookEndpoint.update(const UpdateWebhookEndpointParams(url: 'https://shop.example/new-webhook'));
 await mulla.webhookEndpoint.update(const UpdateWebhookEndpointParams(isActive: false)); // pause webhooks
 
-final rotated = await mulla.webhookEndpoint.rotateSecret(); // if the secret leaked
+final rotated = await mulla.webhookEndpoint.rotateSecret();
 print(rotated.secret); // store the new one; the old one stops working
 ```
 
@@ -344,7 +341,7 @@ await mulla.customers.update(customer.id, const CustomerParams(fullName: 'Jane U
 final found = await mulla.customers.list(const CustomerListFilters(keyword: 'Jane'));
 
 await mulla.customers.blacklist(customer.id); // they stay in your list but can't be invoiced
-await mulla.customers.whitelist(customer.id); // undo
+await mulla.customers.whitelist(customer.id);
 ```
 
 ### Send invoices
@@ -379,7 +376,7 @@ If an attempt fails, the invoice stays open and the customer can try again. When
 await mulla.invoices.update(invoice.id, UpdateInvoiceParams(dueDate: DateTime(2027, 1, 15)));
 await mulla.invoices.updateStatus(invoice.id, InvoiceStatus.cancelled);
 
-final attempts = await mulla.invoices.listPayments(invoice.id); // every payment attempt
+final attempts = await mulla.invoices.listPayments(invoice.id);
 ```
 
 Apps can show and pay an invoice without a key, using `MullaPublicClient`: `invoices.retrievePublic`, `invoices.pay` and `invoices.watch`.
@@ -397,7 +394,7 @@ for (final bank in banks.data) {
 await mulla.referenceData.bankBranches(const BankBranchFilters(swift: 'BKIGRWRW'));
 await mulla.referenceData.countries(const CountryFilters(isSupported: true));
 await mulla.referenceData.currencies();
-await mulla.referenceData.scopes(); // every scope a key can have
+await mulla.referenceData.scopes();
 ```
 
 These records aren't typed classes: read any field with `get('field')`, or all of them with `raw`.
@@ -437,7 +434,7 @@ try {
     // Ask an admin to top up the balance.
   }
 } on PermissionException catch (e) {
-  print(e.message); // names the missing scope, or the IP address or test/live problem
+  print(e.message);
 } on ConnectionException catch (e) {
   // No answer from Mulla. See "Prevent duplicate payments" before trying again.
 } on MullaException catch (e) {
@@ -526,7 +523,7 @@ final mulla = MullaClient(apiKey: 'sk_test_abc_xyz', transport: fake);
 await checkout(mulla); // your code
 
 fake.assertSent((r) => r.url.endsWith('/charges/initiate'));
-print(fake.lastBody); // the JSON your code sent
+print(fake.lastBody);
 ```
 
 To test other paths, queue:

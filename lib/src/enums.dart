@@ -16,7 +16,6 @@ T? _parse<T extends ApiEnum>(List<T> values, Object? raw) {
   return null;
 }
 
-/// The mobile money network.
 enum Provider implements ApiEnum {
   mtnRw('MTN_RW', 'MTN Mobile Money'),
   airtelRw('AIRTEL_RW', 'Airtel Money');

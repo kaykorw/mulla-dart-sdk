@@ -4,11 +4,10 @@ import '../errors.dart';
 import 'request.dart';
 import 'response.dart';
 
-/// Strategy: decides whether a failed attempt is retried, and how long to wait.
+/// Decides whether a failed attempt is retried, and how long to wait.
 abstract interface class RetryStrategy {
   bool shouldRetry(Request request, int attempt, Response? response, Object? error);
 
-  /// Time to wait before the next attempt.
   Duration delay(int attempt, Response? response);
 }
 
@@ -16,14 +15,7 @@ const _safeMethods = ['GET', 'HEAD', 'OPTIONS'];
 const _retryableStatuses = [408, 429, 500, 502, 503, 504];
 const _notProcessedStatuses = [429, 503];
 
-/// Default strategy: exponential backoff with jitter, honouring Retry-After
-/// (but giving up when the server asks to wait longer than [maxDelay]).
-///
-/// Reads (GET) are retried on network errors, 408, 429 and 5xx.
-///
-/// Writes (POST/PATCH) are retried ONLY when Mulla cannot have processed them:
-/// the connection was never made, or the server answered 429/503 (rejected up front).
-/// Repeating a write after a timeout or 500 could create a second charge or payout.
+/// Exponential backoff with jitter that follows `Retry-After`.
 class ExponentialBackoff implements RetryStrategy {
   ExponentialBackoff({
     this.maxRetries = 2,

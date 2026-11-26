@@ -1,6 +1,3 @@
-// A dependency-free webhook endpoint built on dart:io. With shelf or dart_frog, pass the raw
-// body bytes and headers to WebhookProcessor in the same way.
-//
 // Run: MULLA_WEBHOOK_SECRET=... dart run example/webhook_server.dart
 import 'dart:io';
 
@@ -13,7 +10,6 @@ Future<void> main() async {
       ..on(WebhookEventType.chargeSuccess, (event) => print('Paid: ${event.objectId()}'))
       ..on(WebhookEventType.chargeFailed, (event) => print('Failed: ${event.objectId()}'))
       ..onAny((event) => print('Event ${event.type} ${event.id}')),
-    // isDuplicate: (event) => db.webhookEvents.exists(event.id),
   );
 
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8080);
@@ -25,8 +21,7 @@ Future<void> main() async {
       await request.response.close();
       continue;
     }
-    // The raw bytes, never re-encoded JSON: the signature covers the exact body.
-    final body = await request.expand((chunk) => chunk).toList();
+    final body = await request.expand((chunk) => chunk).toList(); // raw bytes: the signature covers the exact body
     final headers = <String, String>{};
     request.headers.forEach((name, values) => headers[name] = values.first);
 

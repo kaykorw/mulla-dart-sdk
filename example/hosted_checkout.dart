@@ -1,5 +1,3 @@
-// Your backend creates the session. A browser opens checkoutUrl, or a Flutter app
-// receives id + token and pays with mulla_flutter.
 import 'dart:io';
 
 import 'package:mulla_dart/mulla_dart.dart';

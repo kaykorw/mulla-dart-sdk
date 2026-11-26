@@ -1,6 +1,5 @@
 import 'http/response.dart';
 
-/// Base class of every exception the SDK throws.
 class MullaException implements Exception {
   MullaException(this.message, {this.cause});
 
@@ -29,7 +28,7 @@ class ConnectionException extends MullaException {
   final bool requestMayHaveBeenSent;
 }
 
-/// The request was cancelled through its `abortTrigger`. It is never retried.
+/// The request was cancelled through its `abortTrigger`.
 class RequestCancelledException extends MullaException {
   RequestCancelledException(super.message, {super.cause});
 }
@@ -114,7 +113,7 @@ const Map<String, String> _hints = {
   'VALIDATION_FAILED': 'One or more parameters are invalid. Unknown fields are rejected too.',
 };
 
-/// Factory: maps an error response to the matching exception class.
+/// Maps an error response to the matching exception class.
 ApiException exceptionFromResponse(Response response) {
   final status = response.statusCode;
   final json = response.json();

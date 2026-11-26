@@ -2,10 +2,7 @@ import 'model.dart';
 
 typedef PageFetcher<T extends Model> = Future<Collection<T>> Function(int page);
 
-/// Iterator: one page of results that can fetch the following pages.
-///
-///     final page = await mulla.charges.list(ChargeListFilters(limit: 20));
-///     await for (final charge in mulla.charges.list().autoPaging()) { ... }
+/// One page of results that can fetch the following pages.
 class Collection<T extends Model> {
   Collection({
     required this.data,

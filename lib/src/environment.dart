@@ -1,7 +1,6 @@
 import 'errors.dart';
 
 /// Mulla runs sandbox (test) and production (live) as separate servers.
-/// The secret key prefix decides which one: `sk_test_...` or `sk_live_...`.
 enum Environment {
   test('test'),
   production('live');
@@ -34,7 +33,7 @@ Environment environmentFromApiKey(String apiKey) {
   return match[1] == 'live' ? Environment.production : Environment.test;
 }
 
-/// Strategy: decides the API base URL for an environment.
+/// Decides the API base URL for an environment.
 abstract interface class EnvironmentResolver {
   String resolveBaseUrl(Environment environment, String? configuredBaseUrl);
 }
@@ -58,7 +57,7 @@ class DefaultEnvironmentResolver implements EnvironmentResolver {
   }
 }
 
-/// HTTPS only, except plain http for local hosts. No credentials, query or fragment.
+/// HTTPS only, except plain http for local hosts.
 void assertSafeUrl(String url) {
   final parsed = Uri.tryParse(url);
   if (parsed == null || parsed.host.isEmpty) {

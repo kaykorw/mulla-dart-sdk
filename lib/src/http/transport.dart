@@ -8,8 +8,6 @@ import '../support/redactor.dart';
 import 'request.dart';
 import 'response.dart';
 
-/// Adapter: sends one request over the network. Replace it to use another HTTP stack
-/// (or [FakeTransport] in tests).
 abstract interface class Transport {
   Future<Response> send(Request request);
 }
@@ -19,7 +17,6 @@ abstract interface class StreamingTransport implements Transport {
   Future<StreamedResponse> openStream(Request request);
 }
 
-/// Messages of errors raised before any byte reached the server.
 const _notSentMarkers = [
   'Failed host lookup',
   'No address associated',
@@ -32,9 +29,7 @@ const _notSentMarkers = [
   'TlsException',
 ];
 
-/// Default transport, built on `package:http`. Pass your own [http.Client] for proxies,
-/// certificate pinning or `cronet_http`/`cupertino_http` in Flutter apps.
-/// Redirects are never followed, so the API key is never sent to another host.
+/// Default transport, built on `package:http`.
 class HttpTransport implements StreamingTransport {
   HttpTransport([http.Client? client]) : _client = client ?? http.Client();
 
@@ -65,8 +60,6 @@ class HttpTransport implements StreamingTransport {
 
   @override
   Future<StreamedResponse> openStream(Request request) async {
-    // The timeout covers connecting and the response headers only: the stream itself stays open.
-    // It aborts the request, so a server that never answers doesn't leave a connection behind.
     final timeout = Completer<void>();
     var timedOut = false;
     final timer = Timer(request.timeout, () {
@@ -87,7 +80,6 @@ class HttpTransport implements StreamingTransport {
     }
   }
 
-  /// Closes the underlying client.
   void close() => _client.close();
 
   http.BaseRequest _build(Request request, Future<void>? abort) {

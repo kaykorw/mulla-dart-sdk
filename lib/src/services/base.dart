@@ -13,8 +13,7 @@ import '../params.dart';
 import '../support/normalizer.dart';
 import '../support/runtime.dart';
 
-/// Template Method base for every service: subclasses only describe endpoints;
-/// validation, error translation, paging and polling live here.
+/// Shared base for services: validation, error translation, paging and polling.
 abstract class AbstractService {
   AbstractService(this.requestor);
 
@@ -89,13 +88,10 @@ abstract class AbstractService {
     }
   }
 
-  /// How long a server-sent events stream may stay silent (not even a keepalive)
-  /// before it is treated as stalled and [watchUpdates] switches to polling.
+  /// Silence after which a live stream is treated as stalled and replaced by polling.
   static const streamIdleTimeout = Duration(seconds: 45);
 
-  /// Live updates: server-sent events, falling back to polling [poll] when streaming
-  /// is unavailable (browsers buffer streamed responses), drops or goes silent.
-  /// The stream closes after the first final update.
+  /// Live updates over server-sent events, falling back to polling.
   Stream<U> watchUpdates<U>({
     required String path,
     Map<String, Object?> query = const {},
@@ -138,13 +134,12 @@ abstract class AbstractService {
       subscription = null;
       unawaited(stream?.cancel());
       Future<void> tick() async {
-        // A slow response must not stack up overlapping requests.
         if (polling || closed) return;
         polling = true;
         try {
           emit(await poll());
         } on ConnectionException {
-          // Temporary network problem: try again on the next tick.
+          // Temporary network problem: the next tick retries.
         } on Object catch (error, stack) {
           if (!closed) controller.addError(error, stack);
         } finally {
@@ -160,12 +155,10 @@ abstract class AbstractService {
       try {
         final response = await requestor.openStream(path, query: query);
         if (closed) {
-          // Cancelled while connecting: drop the connection.
           unawaited(response.stream.listen(null).cancel());
 
           return;
         }
-        // Any bytes (events or keepalive comments) prove the connection is alive.
         void stillAlive() {
           idle?.cancel();
           if (!closed) idle = Timer(idleTimeout, startPolling);
@@ -192,7 +185,6 @@ abstract class AbstractService {
           cancelOnError: true,
         );
       } on ApiException catch (error, stack) {
-        // 4xx (bad token, unknown id) will not fix itself: report it.
         if (error.statusCode < 500) {
           if (!closed) controller.addError(error, stack);
           closed = true;

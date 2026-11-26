@@ -10,13 +10,8 @@ import 'transport.dart';
 
 typedef Next = Future<Response> Function(Request request);
 
-/// Chain of Responsibility handler. Each middleware may change the request,
-/// call [next] to continue the chain, and inspect or replace the response.
-///
-/// Add your own (e.g. tracing) through the client's `middleware` option,
-/// either by implementing this interface or with [Middleware.fn].
+/// A step in the request pipeline; call `next` to continue.
 abstract interface class Middleware {
-  /// Wraps a plain function as a middleware.
   factory Middleware.fn(Future<Response> Function(Request request, Next next) handler) = _FunctionMiddleware;
 
   Future<Response> handle(Request request, Next next);
@@ -47,7 +42,6 @@ class Pipeline {
   Future<Response> send(Request request) => _handler(request);
 }
 
-/// Adds the `x-api-key` header.
 class AuthMiddleware implements Middleware {
   AuthMiddleware(this._apiKey);
 
@@ -146,7 +140,6 @@ class RetryMiddleware implements Middleware {
 
 enum LogLevel { debug, info, warn, error }
 
-/// Receives SDK log lines. Keys, tokens and bodies are never passed to it.
 typedef MullaLogger = void Function(LogLevel level, String message, Map<String, Object?> context);
 
 /// Logs each attempt (method, redacted URL, status, duration).

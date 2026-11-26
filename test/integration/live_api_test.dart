@@ -1,5 +1,3 @@
-// Runs against the sandbox only when MULLA_SECRET_KEY is a test key:
-//   MULLA_SECRET_KEY=sk_test_... dart test test/integration
 @Tags(['integration'])
 library;
 

@@ -7,7 +7,6 @@ final RegExp _headerName = RegExp(r"^[A-Za-z0-9!#$%&'*+.^_`|~-]+$");
 final RegExp _badValue = RegExp('[\r\n\x00]');
 
 /// An immutable HTTP request travelling through the middleware pipeline.
-/// Header names are stored lower-case; `with*` methods return a changed copy.
 class Request {
   Request({
     required String method,
@@ -28,7 +27,7 @@ class Request {
   final Duration timeout;
   final Map<String, Object?> attributes;
 
-  /// Completing this future cancels the request. A cancelled request is never retried.
+  /// Completing this future cancels the request.
   final Future<void>? abortTrigger;
 
   Request withHeader(String name, String value) => _copy(headers: {...headers, name.toLowerCase(): value});
@@ -72,7 +71,6 @@ class Request {
       );
 }
 
-/// Rejects header names/values that could inject extra header lines.
 Map<String, String> _checkHeaders(Map<String, String> headers) {
   final out = <String, String>{};
   headers.forEach((name, value) {

@@ -1,7 +1,4 @@
 /// Official Dart library for the Mulla payment gateway.
-///
-/// - [MullaClient]: the full API with a secret key (servers only).
-/// - [MullaPublicClient]: key-less checkout and invoice payment for apps.
 library;
 
 export 'src/client.dart' show MullaClient;

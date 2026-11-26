@@ -11,15 +11,9 @@ import 'http/transport.dart';
 import 'services/services.dart';
 import 'webhooks/webhook.dart';
 
-/// Entry point to the Mulla API (Facade over all services). Server-side only:
-/// the secret key can move money, so never ship it in an app. Apps use [MullaPublicClient].
-///
-///     final mulla = MullaClient(apiKey: Platform.environment['MULLA_SECRET_KEY']);
-///     final charge = await mulla.charges.initiate(InitiateChargeParams(
-///       provider: Provider.mtnRw, amount: 5000, phoneNumber: '0788000000'));
+/// Entry point to the whole Mulla API, for servers only.
 class MullaClient {
   /// The SDK never reads environment variables: pass every value explicitly.
-  /// Null or blank strings mean "not set".
   MullaClient({
     required String? apiKey,
     Environment? environment,

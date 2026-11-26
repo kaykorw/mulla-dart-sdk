@@ -1,6 +1,4 @@
 /// Test helpers: fake the Mulla API and sign webhooks without network access.
-///
-///     import 'package:mulla_dart/testing.dart';
 library;
 
 import 'dart:async';
@@ -10,17 +8,12 @@ import 'mulla_dart.dart';
 
 typedef _Handler = FutureOr<Response> Function(Request request);
 
-/// In-memory transport for testing code that uses the SDK. Queue responses,
-/// run your code, then assert on the requests that were sent.
-///
-///     final fake = FakeTransport()..pushJson({'id': 'chg_1', 'status': 'PENDING'});
-///     final mulla = MullaClient(apiKey: 'sk_test_abc_xyz', transport: fake);
+/// In-memory transport for testing code that uses the SDK.
 class FakeTransport implements StreamingTransport {
   final List<Object> _queue = [];
   final List<Object> _streams = [];
   final List<Request> _sent = [];
 
-  /// Queues a JSON response.
   FakeTransport pushJson(Object? body, {int status = 200, Map<String, String> headers = const {}}) =>
       push(Response(status, headers: {'content-type': 'application/json', ...headers}, body: jsonEncode(body)));
 
@@ -29,7 +22,6 @@ class FakeTransport implements StreamingTransport {
           {String message = 'Error', Map<String, Object?> extra = const {}}) =>
       pushJson({'statusCode': status, 'message': message, 'errorCode': errorCode, ...extra}, status: status);
 
-  /// Queues a network failure.
   FakeTransport pushConnectionError({String message = 'Connection refused', bool requestMayHaveBeenSent = false}) =>
       push(ConnectionException(message, requestMayHaveBeenSent: requestMayHaveBeenSent));
 
@@ -44,7 +36,6 @@ class FakeTransport implements StreamingTransport {
   }
 
   /// Queues a server-sent events stream: each map becomes one `data:` event.
-  /// Pass a [StreamController] to push events from the test yourself.
   FakeTransport pushEvents(List<Map<String, Object?>> events, {bool keepOpen = false}) {
     _streams.add(_SseScript(events, keepOpen));
 
@@ -58,7 +49,6 @@ class FakeTransport implements StreamingTransport {
     return this;
   }
 
-  /// Queues a failure when opening the next stream.
   FakeTransport pushStreamError(Object error) {
     _streams.add(error);
 
@@ -101,7 +91,6 @@ class FakeTransport implements StreamingTransport {
 
   Request? get lastRequest => _sent.isEmpty ? null : _sent.last;
 
-  /// The decoded JSON body of the last request.
   Object? get lastBody {
     final body = lastRequest?.body;
 
@@ -141,7 +130,6 @@ class _SseScript {
   }
 }
 
-/// A signed webhook request body and headers.
 class SignedWebhook {
   const SignedWebhook(this.body, this.headers);
 
@@ -150,8 +138,6 @@ class SignedWebhook {
 }
 
 /// Builds correctly signed webhook requests so you can test your webhook route.
-///
-///     final hook = WebhookSigner.event('charge.success', {'charge': 'chg_1', 'status': 'SUCCESSFUL'}, 'whsec_test');
 abstract final class WebhookSigner {
   static SignedWebhook event(String type, Map<String, Object?> data, String secret, {String? eventId, int? timestamp}) {
     final body = jsonEncode({'event': type, 'event_id': eventId ?? uuidV4(), 'data': data});

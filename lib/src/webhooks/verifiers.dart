@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 
 import '../errors.dart';
 
-/// Strategy: one webhook signature scheme.
+/// One webhook signature scheme.
 abstract interface class SignatureVerifier {
   bool supports(Map<String, String> headers);
 
@@ -34,8 +34,7 @@ class V1SignatureVerifier implements SignatureVerifier {
   }
 }
 
-/// `x-webhook-signature-v2` + `x-webhook-timestamp`: HMAC-SHA512 of `"<timestamp>." + body`,
-/// rejected outside [toleranceSeconds] to stop replays.
+/// `x-webhook-signature-v2`: timestamped HMAC-SHA512, rejected outside [toleranceSeconds].
 class V2SignatureVerifier implements SignatureVerifier {
   V2SignatureVerifier({this.toleranceSeconds = 300, int Function()? clock})
       : _clock = clock ?? (() => DateTime.now().millisecondsSinceEpoch ~/ 1000);

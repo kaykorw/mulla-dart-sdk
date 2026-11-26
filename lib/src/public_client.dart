@@ -12,15 +12,7 @@ import 'models/models.dart';
 import 'params.dart';
 import 'services/services.dart';
 
-/// Key-less client for apps and browsers. It only calls the public endpoints that a
-/// checkout session token or an invoice id authorises, so it holds no secret.
-///
-/// Your backend creates the session with a secret-key SDK (`charges.createCheckout`) and
-/// hands `session.id` + `session.token` to the app:
-///
-///     final mulla = MullaPublicClient(environment: Environment.test);
-///     await mulla.checkout.pay(id, token, PayParams(provider: Provider.mtnRw, phoneNumber: '0788000000'));
-///     await for (final update in mulla.checkout.watch(id, token)) { ... }
+/// Key-less client for apps and browsers.
 class MullaPublicClient {
   MullaPublicClient({
     required Environment environment,

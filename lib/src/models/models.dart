@@ -51,8 +51,6 @@ class Charge extends Model {
   bool get isFinal => status?.isFinal ?? false;
 }
 
-/// A hosted checkout session. [token] lets a browser or app read and pay it
-/// through the public endpoints without a secret key.
 class CheckoutSession extends Model {
   CheckoutSession(super.data)
       : id = str(data, 'id') ?? '',
@@ -297,7 +295,6 @@ class Customer extends Model {
         email = str(data, 'email'),
         phone = str(data, 'phone'),
         address = str(data, 'address'),
-        // The API returns camelCase on list/create and snake_case on retrieve.
         companyName = str(data, 'companyName') ?? str(data, 'company_name'),
         countryOfOrigin = str(data, 'countryOfOrigin') ?? str(data, 'country_of_origin'),
         city = str(data, 'city'),
@@ -333,7 +330,7 @@ class WebhookEndpoint extends Model {
   final String id;
   final String? url;
 
-  /// Shown only when the endpoint is created or its secret rotated. Store it.
+  /// Shown only when the endpoint is created or its secret rotated.
   final String? secret;
   final bool? isActive;
   final List<String> events;

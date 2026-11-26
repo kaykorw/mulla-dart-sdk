@@ -7,12 +7,6 @@ import 'event.dart';
 import 'verifiers.dart';
 
 /// Verifies incoming webhook requests and turns them into [Event]s.
-///
-///     final event = Webhook.constructEvent(rawBody, request.headers, webhookSecret);
-///
-/// Verifiers are tried in order; the first whose headers are present must pass.
-/// The timestamped v2 scheme always wins over v1 when both are sent, so stripping
-/// v2 headers cannot bypass replay protection.
 class Webhook {
   Webhook(String secret, {int toleranceSeconds = 300, List<SignatureVerifier>? verifiers})
       : _secret = secret,
@@ -81,7 +75,7 @@ class Webhook {
 
 typedef EventListener = FutureOr<void> Function(Event event);
 
-/// Observer: routes events to listeners by type.
+/// Routes events to listeners by type.
 class EventDispatcher {
   final Map<String, List<EventListener>> _listeners = {};
 
@@ -123,12 +117,7 @@ class WebhookResult {
   String get jsonBody => jsonEncode(body);
 }
 
-/// Framework-independent webhook handling: verifies the raw body, skips duplicates and
-/// runs the listeners. Wire it to shelf, dart_frog, Serverpod or anything else:
-///
-///     final process = WebhookProcessor(secret: secret, dispatcher: EventDispatcher()..on(...));
-///     final result = await process(await request.read().expand((c) => c).toList(), request.headers);
-///     return Response(result.status, body: result.jsonBody, headers: {'content-type': 'application/json'});
+/// Framework-independent webhook handling: verifies the raw body, skips duplicates and runs the listeners.
 class WebhookProcessor {
   WebhookProcessor({
     required String secret,
