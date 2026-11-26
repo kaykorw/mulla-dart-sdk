@@ -14,6 +14,7 @@ import 'services/services.dart';
 
 /// Key-less client for apps and browsers.
 class MullaPublicClient {
+  /// A key-less client; pass the environment your backend's key uses.
   MullaPublicClient({
     required Environment environment,
     String? baseUrl,
@@ -48,6 +49,7 @@ class MullaPublicClient {
 
   MullaPublicClient.fromConfig(this.config) : _requestor = ApiRequestor(config);
 
+  /// The validated settings this client uses.
   final MullaConfig config;
   final ApiRequestor _requestor;
 
@@ -57,8 +59,10 @@ class MullaPublicClient {
   /// Customer-facing invoice endpoints: `retrievePublic`, `pay`, `watch`, `eventsUrl`.
   late final PublicInvoiceService invoices = PublicInvoiceService(InvoiceService(_requestor));
 
+  /// Test or production.
   Environment get environment => config.environment;
 
+  /// The API address requests go to.
   String get baseUrl => config.baseUrl;
 
   @override
@@ -71,13 +75,17 @@ class PublicInvoiceService {
 
   final InvoiceService _invoices;
 
+  /// The customer-facing view of an invoice.
   Future<Invoice> retrievePublic(String id, [RequestOptions? options]) => _invoices.retrievePublic(id, options);
 
+  /// Sends a payment prompt for this invoice to a phone.
   Future<PaymentInitiation> pay(String id, PayInvoiceParams params, [RequestOptions? options]) =>
       _invoices.pay(id, params, options);
 
+  /// URL of the live status stream for this invoice.
   String eventsUrl(String id) => _invoices.eventsUrl(id);
 
+  /// Live updates until the invoice is paid or cancelled.
   Stream<InvoiceUpdate> watch(String id,
           {Duration pollInterval = const Duration(seconds: 3), bool? useServerSentEvents}) =>
       _invoices.watch(id, pollInterval: pollInterval, useServerSentEvents: useServerSentEvents);

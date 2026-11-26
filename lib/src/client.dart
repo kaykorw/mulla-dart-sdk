@@ -58,22 +58,41 @@ class MullaClient {
     }
   }
 
+  /// The validated settings this client uses.
   final MullaConfig config;
   final ApiRequestor _requestor;
 
+  /// Payment requests to a customer's phone, and hosted checkout sessions.
   late final ChargeService charges = ChargeService(_requestor);
+
+  /// Checkout sessions, authorised by their token.
   late final CheckoutService checkout = CheckoutService(_requestor);
+
+  /// Money sent from your balance to a phone.
   late final PayoutService payouts = PayoutService(_requestor);
+
+  /// Top-ups of your balance from a phone.
   late final RechargeService recharges = RechargeService(_requestor);
+
+  /// Invoices and their payments.
   late final InvoiceService invoices = InvoiceService(_requestor);
+
+  /// Customers you bill.
   late final CustomerService customers = CustomerService(_requestor);
+
+  /// Your webhook URL and secret.
   late final WebhookEndpointService webhookEndpoint = WebhookEndpointService(_requestor);
+
+  /// Banks, countries, currencies and scopes.
   late final ReferenceDataService referenceData = ReferenceDataService(_requestor);
 
+  /// Test or production, taken from the key.
   Environment get environment => config.environment;
 
+  /// True for a live (`sk_live_`) key: payments move real money.
   bool get isLive => config.environment == Environment.production;
 
+  /// The API address requests go to.
   String get baseUrl => config.baseUrl;
 
   /// Webhook verifier using [secret], or the client's `webhookSecret` when omitted.

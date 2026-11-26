@@ -661,7 +661,7 @@ The [example](example) folder has complete programs. Run each with `MULLA_SECRET
 
 | File                                                 | Shows                                                |
 | ---------------------------------------------------- | ---------------------------------------------------- |
-| [direct_charge.dart](example/direct_charge.dart)     | Charging a phone and waiting for the result          |
+| [example.dart](example/example.dart)                 | Charging a phone and waiting for the result          |
 | [hosted_checkout.dart](example/hosted_checkout.dart) | Creating a payment page for a website or an app      |
 | [payout.dart](example/payout.dart)                   | Sending money and handling a low balance             |
 | [webhook_server.dart](example/webhook_server.dart)   | A `dart:io` server that receives and checks webhooks |

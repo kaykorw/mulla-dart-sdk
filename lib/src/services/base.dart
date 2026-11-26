@@ -15,10 +15,13 @@ import '../support/runtime.dart';
 
 /// Shared base for services: validation, error translation, paging and polling.
 abstract class AbstractService {
+  /// Creates a service that sends requests through [requestor].
   AbstractService(this.requestor);
 
+  /// Sends the requests and turns error responses into exceptions.
   final ApiRequestor requestor;
 
+  /// The client settings.
   MullaConfig get config => requestor.config;
 
   /// Name used in error messages, e.g. `charges`.
@@ -27,6 +30,7 @@ abstract class AbstractService {
   /// Scope the endpoints need, named in permission errors.
   ApiScope? get scope => null;
 
+  /// Sends a request and returns the decoded JSON body.
   Future<Object?> callApi(
     String method,
     String path, {
@@ -43,6 +47,7 @@ abstract class AbstractService {
     }
   }
 
+  /// Sends a request and builds a model from the response.
   Future<T> send<T extends Model>(
     ModelFactory<T> factory,
     String name,
@@ -54,6 +59,7 @@ abstract class AbstractService {
   }) async =>
       makeModel(factory, await callApi(method, path, query: query, body: body, options: options), name);
 
+  /// Fetches one page of a list endpoint.
   Future<Collection<T>> listModels<T extends Model>(
     ModelFactory<T> factory,
     String path,
@@ -67,6 +73,7 @@ abstract class AbstractService {
     return Collection.fromResponse(factory, await callApi('GET', path, query: query, options: options), fetchPage);
   }
 
+  /// Calls [fetch] every [interval] until [isFinal] or [timeout].
   Future<T> pollUntilFinal<T>(
     Future<T> Function() fetch,
     bool Function(T model) isFinal, {
