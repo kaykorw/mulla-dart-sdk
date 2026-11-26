@@ -699,11 +699,26 @@ Keep the SDK consistent with the other Mulla SDKs (PHP, Node, Laravel and others
 
 ## Releasing
 
-Releases are automated. Merging the release pull request that release-please opens creates a `vX.Y.Z` tag. The tag runs `.github/workflows/publish.yml`, which tests the package and publishes it to pub.dev.
+Releases are automated with [release-please](https://github.com/googleapis/release-please):
+
+1. Every push to `main` updates a release pull request. It bumps the version in `pubspec.yaml`, `lib/src/version.dart` and this README, and adds the new entries to `CHANGELOG.md`.
+2. Merging that pull request creates the `vX.Y.Z` tag and the GitHub release.
+3. The tag runs `.github/workflows/publish.yml`, which tests the package and publishes it to pub.dev.
+
+How the next version is chosen: release-please reads the commit messages on `main` since the last release.
+
+| Commit message starts with                      | Next version (while below 1.0) | Shows in the changelog |
+| ----------------------------------------------- | ------------------------------ | ---------------------- |
+| `fix:`                                          | 0.1.0 → 0.1.1                  | Yes, under Bug Fixes   |
+| `feat:`                                         | 0.1.0 → 0.2.0                  | Yes, under Features    |
+| `feat!:` or a `BREAKING CHANGE:` footer         | 0.1.0 → 0.2.0                  | Yes, flagged breaking  |
+| `docs:`, `test:`, `ci:`, `chore:`, `refactor:`  | No release on its own          | No                     |
+
+Pull requests are squash-merged, so the pull request title becomes the commit message. The `PR title` check rejects titles that don't follow this format.
 
 One-time setup:
 
-1. Publish the first version by hand with `dart pub publish`. pub.dev can only enable automated publishing for a package that already exists.
+1. Publish the first version by hand with `dart pub publish`. pub.dev can only enable automated publishing for a package that already exists. Then tag that commit so release-please knows where to start: `git tag v0.1.0 && git push origin v0.1.0`.
 2. On pub.dev, open the package's **Admin** tab and enable **Automated publishing** from GitHub Actions for `kaykorw/mulla-dart-sdk`, with the tag pattern `v{{version}}`.
 3. In the GitHub repository, add a `RELEASE_PLEASE_TOKEN` secret: a personal access token with write access to contents and pull requests. Tags created with the default `GITHUB_TOKEN` don't start other workflows, so without it nothing is published.
 
