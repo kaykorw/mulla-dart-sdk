@@ -1,6 +1,6 @@
 name: mulla_dart
 description: Official Dart library for the Mulla payment gateway (MTN Mobile Money and Airtel Money, Rwanda). Server SDK plus a key-less public client for apps.
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/kaykorw/mulla-dart-sdk
 repository: https://github.com/kaykorw/mulla-dart-sdk
 issue_tracker: https://github.com/kaykorw/mulla-dart-sdk/issues
