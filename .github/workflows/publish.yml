@@ -1,0 +1,30 @@
+name: Publish to pub.dev
+
+# pub.dev automated publishing only accepts runs started by a pushed version tag.
+# release-please creates the tag when its release PR is merged. It must use a personal access
+# token (secret RELEASE_PLEASE_TOKEN): tags pushed with the default GITHUB_TOKEN don't start workflows.
+#
+# One-time setup on pub.dev: package Admin → Automated publishing → enable GitHub Actions,
+# repository kaykorw/mulla-dart-sdk, tag pattern v{{version}}.
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # OIDC token for pub.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Tag matches pubspec version
+        run: |
+          version=$(grep -m1 '^version:' pubspec.yaml | awk '{print $2}')
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match pubspec version $version"; exit 1
+          fi
+      - run: dart pub get
+      - run: dart analyze --fatal-infos
+      - run: dart test test/unit
+      - run: dart pub publish --force

@@ -1,0 +1,24 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # Opens/updates a release PR from Conventional Commits. Merging it tags vX.Y.Z and creates the GitHub release.
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # A personal access token, so the release tag starts publish.yml (GITHUB_TOKEN tags don't).
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
